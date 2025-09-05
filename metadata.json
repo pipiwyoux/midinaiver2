@@ -1,0 +1,8 @@
+{
+  "name": "MIDIN AI CHAT and Audio",
+  "description": "Aplikasi chatbot canggih oleh Tim Tolopani Kemenag Kota Gorontalo. Berinteraksi melalui teks, lihat melalui kamera, dan berbincang dengan suara.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
