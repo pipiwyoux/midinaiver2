@@ -243,25 +243,38 @@ const App: React.FC = () => {
             speakText(placeholderMessage.text);
 
             try {
-                const response = await ai.models.generateImages({
-                    model: 'imagen-4.0-generate-001',
-                    prompt: imagePrompt,
-                    config: { numberOfImages: 1, outputMimeType: 'image/jpeg' },
+                const response = await ai.models.generateContent({
+                    model: 'gemini-2.5-flash-image-preview',
+                    contents: [{ text: imagePrompt }],
+                    config: { responseModalities: [Modality.IMAGE, Modality.TEXT] },
                 });
+                
+                let newImageBase64: string | null = null;
+                let responseText = "Tentu, ini gambarnya.";
 
-                const base64ImageBytes = response.generatedImages[0].image.imageBytes;
-                setLastGeneratedImage(base64ImageBytes); // Save for editing
-                const imageUrl = `data:image/jpeg;base64,${base64ImageBytes}`;
+                for (const part of response.candidates[0].content.parts) {
+                    if (part.inlineData) {
+                        newImageBase64 = part.inlineData.data;
+                    } else if (part.text) {
+                        responseText = part.text;
+                    }
+                }
 
-                const imageMessage: ChatMessage = {
-                    id: modelMessageId,
-                    role: 'model',
-                    text: 'Tentu, ini gambarnya.',
-                    imageUrl: imageUrl,
-                    timestamp: new Date()
-                };
-                setMessages(prev => prev.map(msg => msg.id === modelMessageId ? imageMessage : msg));
-                speakText('Tentu, ini gambarnya.');
+                if (newImageBase64) {
+                    setLastGeneratedImage(newImageBase64); // Save for editing
+                    const imageUrl = `data:image/jpeg;base64,${newImageBase64}`;
+                    const imageMessage: ChatMessage = {
+                        id: modelMessageId,
+                        role: 'model',
+                        text: responseText,
+                        imageUrl: imageUrl,
+                        timestamp: new Date()
+                    };
+                    setMessages(prev => prev.map(msg => msg.id === modelMessageId ? imageMessage : msg));
+                    speakText(responseText);
+                } else {
+                    throw new Error("Model tidak menghasilkan gambar.");
+                }
 
             } catch (err: any) {
                 console.error("Image generation failed:", err);
