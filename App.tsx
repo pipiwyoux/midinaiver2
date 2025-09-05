@@ -279,7 +279,10 @@ const App: React.FC = () => {
             } catch (err: any) {
                 console.error("Image generation failed:", err);
                 let errorMessage = "Maaf, saya tidak dapat membuat gambar saat ini.";
-                if (err.message && err.message.includes('Responsible AI practices')) {
+                
+                if (err.message && err.message.includes('exceeded your current quota')) {
+                    errorMessage = "Maaf, kuota API untuk pembuatan gambar telah habis. Silakan coba lagi nanti atau periksa pengaturan billing Anda.";
+                } else if (err.message && err.message.includes('Responsible AI practices')) {
                     errorMessage = "Maaf, gambar tidak dapat dibuat karena permintaan Anda melanggar kebijakan konten kami. Silakan coba dengan deskripsi yang berbeda.";
                 }
                 setError(errorMessage);
